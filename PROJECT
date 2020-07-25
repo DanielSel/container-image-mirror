@@ -1,0 +1,7 @@
+domain: zerocloud.io
+repo: github.com/danielsel/container-image-mirror
+resources:
+- group: cim
+  kind: MirrorConfig
+  version: v1alpha1
+version: "2"

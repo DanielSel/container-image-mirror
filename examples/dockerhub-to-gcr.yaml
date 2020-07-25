@@ -1,0 +1,20 @@
+apiVersion: cim.zerocloud.io/v1alpha1
+kind: MirrorConfig
+metadata:
+  name: istio
+spec:
+  images:
+  - docker.io/istio
+  - docker.io/prom
+  - docker.io/jaegertracing
+  - docker.io/omnition
+  - docker.io/openzipkin
+  destinations:
+  - gcr.io/sel-red-alpha/mirror
+  tagPolicy:
+    minNum: 3
+    maxNum: 127
+    maxAge: 648h # = 27d ;)
+  registries:
+  - name: gcr-sel-red-alpha
+    url: gcr.io/sel-red-alpha

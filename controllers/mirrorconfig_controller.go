@@ -24,7 +24,7 @@ import (
 	ctrl "sigs.k8s.io/controller-runtime"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 
-	cimv1alpha1 "github.com/danielsel/container-image-mirror/api/v1alpha1"
+	cimapi "github.com/danielsel/container-image-mirror/api"
 )
 
 // MirrorConfigReconciler reconciles a MirrorConfig object
@@ -37,7 +37,7 @@ type MirrorConfigReconciler struct {
 // +kubebuilder:rbac:groups=cim.zerocloud.io,resources=mirrorconfigs,verbs=get;list;watch;create;update;patch;delete
 // +kubebuilder:rbac:groups=cim.zerocloud.io,resources=mirrorconfigs/status,verbs=get;update;patch
 
-func (r *MirrorConfigReconciler) Reconcile(req ctrl.Request) (ctrl.Result, error) {
+func (r *MirrorConfigReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctrl.Result, error) {
 	_ = context.Background()
 	_ = r.Log.WithValues("mirrorconfig", req.NamespacedName)
 
@@ -48,6 +48,6 @@ func (r *MirrorConfigReconciler) Reconcile(req ctrl.Request) (ctrl.Result, error
 
 func (r *MirrorConfigReconciler) SetupWithManager(mgr ctrl.Manager) error {
 	return ctrl.NewControllerManagedBy(mgr).
-		For(&cimv1alpha1.MirrorConfig{}).
+		For(&cimapi.MirrorConfig{}).
 		Complete(r)
 }

@@ -1,0 +1,12 @@
+bases:
+- ../../../config/default
+
+namespace: system-cim
+
+patchesStrategicMerge:
+- config.yaml
+
+images:
+- name: container-image-mirror
+  newName: gcr.io/sel-red-alpha/container-image-mirror
+    

@@ -20,22 +20,17 @@ import (
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 )
 
-// EDIT THIS FILE!  THIS IS SCAFFOLDING FOR YOU TO OWN!
-// NOTE: json tags are required.  Any new fields you add must have json tags for the fields to be serialized.
-
 // MirrorConfigSpec defines the desired state of MirrorConfig
 type MirrorConfigSpec struct {
-	// INSERT ADDITIONAL SPEC FIELDS - desired state of cluster
-	// Important: Run "make" to regenerate code after modifying this file
-
-	// Foo is an example field of MirrorConfig. Edit MirrorConfig_types.go to remove/update
-	Foo string `json:"foo,omitempty"`
+	Images       []string   `json:"images"`
+	Destinations []string   `json:"destinations"`
+	TagPolicy    *TagPolicy `json:"tagPolicy,omitempty"`
 }
 
 // MirrorConfigStatus defines the observed state of MirrorConfig
 type MirrorConfigStatus struct {
-	// INSERT ADDITIONAL STATUS FIELD - define observed state of cluster
-	// Important: Run "make" to regenerate code after modifying this file
+	LastExecution *metav1.Time `json:"lastExecution,omitempty"`
+	Summary       []string     `json:"summary,omitempty"`
 }
 
 // +kubebuilder:object:root=true
@@ -56,6 +51,12 @@ type MirrorConfigList struct {
 	metav1.TypeMeta `json:",inline"`
 	metav1.ListMeta `json:"metadata,omitempty"`
 	Items           []MirrorConfig `json:"items"`
+}
+
+type TagPolicy struct {
+	MinNum int             `json:"minNum,omitempty"`
+	MaxNum int             `json:"maxNum,omitempty"`
+	MaxAge metav1.Duration `json:"maxAge,omitempty"`
 }
 
 func init() {

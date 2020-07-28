@@ -1,7 +1,0 @@
-apiVersion: cim.zerocloud.io/v1alpha1
-kind: MirrorConfig
-metadata:
-  name: mirrorconfig-sample
-spec:
-  # Add fields here
-  foo: bar

@@ -1,5 +1,5 @@
 # Build the manager binary
-FROM golang:1.13 as builder
+FROM golang:1.14 as builder
 
 WORKDIR /workspace
 # Copy the Go Modules manifests
@@ -13,15 +13,22 @@ RUN go mod download
 COPY main.go main.go
 COPY api/ api/
 COPY controllers/ controllers/
+COPY pkg/ pkg/
 
 # Build
-RUN CGO_ENABLED=0 GOOS=linux GOARCH=amd64 GO111MODULE=on go build -a -o manager main.go
+RUN CGO_ENABLED=0 GOOS=linux GOARCH=amd64 GO111MODULE=on go build -a -o cim main.go
+
+# Unit Tests
+RUN go test ./controllers/.. ./pkg/..
 
 # Use distroless as minimal base image to package the manager binary
 # Refer to https://github.com/GoogleContainerTools/distroless for more details
-FROM gcr.io/distroless/static:nonroot
+FROM gcr.io/distroless/static:nonroot as cim-runtime
 WORKDIR /
-COPY --from=builder /workspace/manager .
+COPY --from=builder /workspace/cim .
 USER nonroot:nonroot
 
-ENTRYPOINT ["/manager"]
+ENTRYPOINT ["/cim"]
+
+# Skaffold debug autoconfig (this is a default setting and changes nothing)
+ENV GOTRACEBACK=single 

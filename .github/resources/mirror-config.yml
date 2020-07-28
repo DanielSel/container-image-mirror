@@ -5,10 +5,10 @@ metadata:
 spec:
   images:
   - docker.io/istio
-  # - docker.io/prom
-  # - docker.io/jaegertracing
-  # - docker.io/omnition
-  # - docker.io/openzipkin
+  - docker.io/prom
+  - docker.io/jaegertracing
+  - docker.io/omnition
+  - docker.io/openzipkin
   destinations:
   - gcr.io/sel-red-alpha/mirror
   tagPolicy:

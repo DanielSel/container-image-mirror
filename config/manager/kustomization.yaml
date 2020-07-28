@@ -1,2 +1,7 @@
 resources:
-- manager.yaml
+- deployment.yaml
+
+configMapGenerator:
+- name: config
+  literals:
+  - LOG_LEVEL=info

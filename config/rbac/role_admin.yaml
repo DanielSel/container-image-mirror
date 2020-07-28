@@ -1,0 +1,24 @@
+# permissions for end users to edit mirrorconfigs.
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: admin
+rules:
+- apiGroups:
+  - cim.zerocloud.io
+  resources:
+  - mirrorconfigs
+  verbs:
+  - create
+  - delete
+  - get
+  - list
+  - patch
+  - update
+  - watch
+- apiGroups:
+  - cim.zerocloud.io
+  resources:
+  - mirrorconfigs/status
+  verbs:
+  - get

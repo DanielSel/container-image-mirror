@@ -1,0 +1,40 @@
+apiVersion: skaffold/v2beta6
+kind: Config
+build:
+  artifacts:
+  - image: container-image-mirror
+    sync:
+      infer:
+      - '*.go'
+      # manual:
+      # - src: "**"
+      #   dest: "/workspace/"
+  googleCloudBuild: {}
+deploy:
+  kustomize:
+    paths: 
+    - config/default
+### SKAFFOLD PROFILES
+profiles:
+### DEVELOPMENT ENVIRONMENTS (DEBUG)
+- name: debug
+  portForward:
+  - resourceType: deployment
+    resourceName: cim-controller-manager
+    namespace: system-cim 
+    port: 56268
+### CI - PROFILE WITH ADAPTATIONS FOR CI PIPELINE RUNS
+- name: ci # Empty for now, but will most likely be useful real soon
+### SOFTWARE STAGES (DEV/QUAL/PROD)
+# <empty>
+### REGIONS - REGION SPECIFIC CONFIG PROFILES
+# <empty>
+### CLUSTERS - INFRASTRUCTURE SPECIFIC CONFIG PROFILES
+- name: sel-red-alpha
+  activation:
+  - kubeContext: ^gke_.*_sel-red-alpha-core$
+  patches:
+    - op: replace
+      path: /deploy/kustomize/paths
+      value:
+      - .ci/deploy/sel-red-alpha

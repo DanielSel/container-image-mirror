@@ -1,0 +1,27 @@
+name: ci
+
+on:
+  push:
+    branches: [ master ]
+    paths: [".github/workflows/ci.yml", "Dockerfile", "go.mod", "go.sum", "main.go", "api/**", "controllers/**", "pkg/**", "test**", "toolchain/turris-sdk/**"]
+  pull_request:
+    branches: [ master ]
+    paths: [".github/workflows/ci.yml", "Dockerfile", "go.mod", "go.sum", "main.go", "api/**", "controllers/**", "pkg/**", "test**", "toolchain/turris-sdk/**"]
+
+jobs:
+  ci:
+    runs-on: ubuntu-latest
+    steps:
+      - name: "Checkout git repository"
+        uses: actions/checkout@v2
+
+      - name: "Go build (using docker)"
+        uses: whoan/docker-build-with-cache-action@v5
+        with:
+          username: danielsel
+          password: "${{ secrets.PAT }}"
+          registry: ghcr.io
+          image_name: cim
+        env:
+          NODE_OPTIONS: "--max_old_space_size=7168"
+          DOCKER_BUILDKIT: 1

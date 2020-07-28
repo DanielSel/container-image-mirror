@@ -1,0 +1,7 @@
+bases:
+- ../sel-red-alpha
+
+patchesStrategicMerge:
+- patch-deployment.yaml
+
+  

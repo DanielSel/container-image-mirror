@@ -69,7 +69,7 @@ func (r *Runner) Run(ctx context.Context) error {
 	memlim.SetLogger(log.WithName("System").WithValues("Module", "memlim"))
 
 	// Configure memory limit
-	memlim.LimitMemory(ConfigMaxMemBytes)
+	memlimStop := memlim.LimitMemory(ConfigMaxMemBytes)
 	// Let memlim know that we will provide hints about freed memory from our operations
 	// to improve efficiency of our memory management
 	memlim.FreedMemHint(0)
@@ -117,6 +117,7 @@ func (r *Runner) Run(ctx context.Context) error {
 		return err
 	}
 
+	memlimStop()
 	return nil
 }
 

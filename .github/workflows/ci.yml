@@ -3,10 +3,10 @@ name: ci
 on:
   push:
     branches: [ master ]
-    paths: [".github/workflows/ci.yml", "Dockerfile", "go.mod", "go.sum", "main.go", "api/**", "controllers/**", "pkg/**", "test**", "toolchain/turris-sdk/**"]
+    paths: [".github/workflows/ci.yml", "Dockerfile", "go.mod", "go.sum", "main.go", "api/**", "controllers/**", "pkg/**", "test/**"]
   pull_request:
     branches: [ master ]
-    paths: [".github/workflows/ci.yml", "Dockerfile", "go.mod", "go.sum", "main.go", "api/**", "controllers/**", "pkg/**", "test**", "toolchain/turris-sdk/**"]
+    paths: [".github/workflows/ci.yml", "Dockerfile", "go.mod", "go.sum", "main.go", "api/**", "controllers/**", "pkg/**", "test/**"]
 
 jobs:
   ci:

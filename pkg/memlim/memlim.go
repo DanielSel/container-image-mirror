@@ -55,10 +55,10 @@ type LoadSheddingFnc func()
 // LimitMemory attempts to limit memory consumption by enabling WaitForFreeMemory
 // to wait for sufficient available memory and manages recognized overconsumption
 // by executing LoadSheddingFnc's
-func LimitMemory(maxHeapSize uint64) {
+func LimitMemory(maxHeapSize uint64) context.CancelFunc {
 	memlimit = maxHeapSize
 	log.Info("Memory limit set",
-		"MaxHeapSize", maxHeapSize,
+		"MaxHeapSize", bytefmt.ByteSize(maxHeapSize),
 	)
 
 	// If already running, kill and restart with new params
@@ -66,8 +66,7 @@ func LimitMemory(maxHeapSize uint64) {
 		cnFnc()
 		ctx, cnFnc = context.WithCancel(context.Background())
 		running = false
-		LimitMemory(maxHeapSize)
-		return
+		return LimitMemory(maxHeapSize)
 	}
 
 	// Timer
@@ -75,6 +74,7 @@ func LimitMemory(maxHeapSize uint64) {
 		for {
 			select {
 			case <-ctx.Done():
+				running = false
 				return
 			case <-time.After(Interval):
 				runMemoryManagement()
@@ -83,6 +83,7 @@ func LimitMemory(maxHeapSize uint64) {
 	}()
 
 	running = true
+	return cnFnc
 }
 
 func LimitMemoryDynamic() error {
@@ -118,10 +119,6 @@ func WaitForFreeMemory(ctx context.Context, RequestedMem uint64, cancelFnc LoadS
 	})
 	log.V(1).Info("WaitForFreeMemory request received",
 		"MemoryRequested", bytefmt.ByteSize(RequestedMem))
-	// #DEBUG
-	log.Info("WaitForFreeMemory request received",
-		"MemoryRequested", bytefmt.ByteSize(RequestedMem))
-	// #END DEBUG
 	select {
 	case <-meCh:
 	case <-ctx.Done():
@@ -154,7 +151,7 @@ func runMemoryManagement() {
 	if freedmemhints && memtrack > alloc {
 		used = memtrack
 	}
-	avail := used - alloc
+	avail := memlimit - used
 	fac := float64(alloc) / float64(memlimit)
 	log.V(2).Info("memlim statistics",
 		"MemoryAllocated", bytefmt.ByteSize(alloc),
@@ -162,15 +159,7 @@ func runMemoryManagement() {
 		"MemoryAvailable", bytefmt.ByteSize(avail),
 		"MemoryLimit", bytefmt.ByteSize(memlimit),
 		"MemoryUsagePercent", fmt.Sprintf("%.2f", fac))
-	// #DEBUG
-	log.Info("#debug",
-		"alloc", bytefmt.ByteSize(alloc),
-		"used", bytefmt.ByteSize(used),
-		"avail", bytefmt.ByteSize(avail),
-		"memlimit", bytefmt.ByteSize(memlimit),
-		"fac", fmt.Sprintf("%.2f", fac),
-	)
-	// #END DEBUG
+
 	switch {
 	case fac > 1.1:
 		// Emergency, trigger load shedding and check back shortly

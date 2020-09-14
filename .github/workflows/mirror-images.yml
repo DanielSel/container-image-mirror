@@ -1,0 +1,55 @@
+name: mirror-images
+
+on:
+  push:
+    branches: [ master ]
+    paths: [".github/workflows/mirror-images.yml"]
+  pull_request:
+    branches: [ master ]
+    paths: [".github/workflows/mirror-images.yml"]
+  workflow_run:
+    workflows: ["ci"]
+    branches: [master]
+    types: [completed]
+  schedule:
+  - cron: "0 * * * *"
+
+jobs:
+  mirror-images:
+    runs-on: ubuntu-latest
+    steps:
+      - name: "Checkout git repository"
+        uses: actions/checkout@v2
+
+      - name: "Retrieve latest cim docker image"
+        run: docker pull ghcr.io/danielsel/cim:latest
+
+      - name: "Extract cim"
+        run: |
+          id=$(docker create ghcr.io/danielsel/cim:latest)
+          docker cp $id:/cim .
+          docker rm -v $id
+
+      - name: "Login to GCP (target registry)"
+        uses: GoogleCloudPlatform/github-actions/setup-gcloud@master
+        with:
+          version: '290.0.1'
+          project_id: ${{ secrets.GCP_PROJECT_ID }}
+          service_account_key: ${{ secrets.GCP_SA_KEY }}
+          export_default_credentials: false
+
+      - name: "Configure docker credential helper for GCR (target registry)"
+        run: |
+          gcloud components install --quiet docker-credential-gcr
+          docker-credential-gcr configure-docker
+        env:
+          GCP_PROJECT_ID: ${{ secrets.GCP_PROJECT_ID }}
+
+      - name: "Run container-image-mirror"
+        run: ./cim --development --log-level=info --config .github/resources/mirror-config.yml
+        env:
+          NODE_OPTIONS: "--max_old_space_size=7168"
+          DOCKER_BUILDKIT: 1
+
+      - name: "Clean up"
+        run: rm -f $GOOGLE_APPLICATION_CREDENTIALS

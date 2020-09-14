@@ -5,7 +5,7 @@
     "version": "0.2.0",
     "configurations": [
         {
-            "name": "Delve (Local)",
+            "name": "(local) cim examples/dockerhub-to-gcr.yaml",
             "type": "go",
             "request": "launch",
             "mode": "auto",
@@ -14,8 +14,9 @@
             "args": [
                 "--development",
                 "--log-level=debug",
+                "--memlimit=4096",
                 "--config=examples/dockerhub-to-gcr.yaml",
-            ]
+            ],
         }
     ]
 }

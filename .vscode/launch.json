@@ -15,7 +15,7 @@
                 "--development",
                 "--log-level=debug",
                 "--memlimit=4096",
-                "--config=examples/dockerhub-to-gcr.yaml",
+                "--config=.github/resources/mirror-config.yml",
             ],
         }
     ]

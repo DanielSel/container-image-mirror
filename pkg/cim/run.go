@@ -442,6 +442,11 @@ func (r *Runner) resolveTagDetails(ctx context.Context, tags chan *registry.TagD
 			}
 			td, err := reg.ResolveTagDetails(ctx, tag)
 			if err != nil {
+				var errSchema *remote.ErrSchema1
+				if errors.As(err, &errSchema) {
+					log.Info("WARNING: Unsupported schema encountered: schema1 (outdated, insecure)")
+					continue
+				}
 				log.Error(err, "Error resolving tag details",
 					"Tag", tag)
 				emit(evt, NewStatusEvent(tag.String(), ObjectTypeTag, StatusTypeResolved, false))

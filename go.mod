@@ -36,4 +36,4 @@ require (
 	sigs.k8s.io/yaml v1.2.0
 )
 
-replace github.com/google/go-containerregistry => github.com/danielsel/go-containerregistry v0.1.3-0.20200914211052-c13355b39aa5
+replace github.com/google/go-containerregistry => github.com/danielsel/go-containerregistry v0.1.3-0.20200915032101-0b0730e13ef8

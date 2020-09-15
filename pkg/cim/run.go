@@ -39,7 +39,10 @@ func NewRunner(config *cimapi.MirrorConfig, log logr.Logger) *Runner {
 		status:        newRunnerStatus(),
 		eventHandlers: []EventHandler{},
 	}
-	runner.eventHandlers = append(runner.eventHandlers, runner.updateStatus)
+	runner.eventHandlers = append(runner.eventHandlers,
+		runner.updateStatus,
+		runner.updateSummary,
+	)
 	return runner
 }
 
@@ -48,6 +51,7 @@ type Runner struct {
 	log           logr.Logger
 	status        *runnerStatus
 	eventHandlers []EventHandler
+	summary       Summary
 }
 
 type copyJob struct {
@@ -55,6 +59,10 @@ type copyJob struct {
 	size     uint64
 }
 
+// Summary returns a summary of the last executed run
+func (r *Runner) Summary() Summary { return r.summary }
+
+// Run executes the cim run
 func (r *Runner) Run(ctx context.Context) error {
 	// Configure logging and context
 	log := r.log.WithName("CIM").WithValues("MirrorConfig", r.config.Name)
@@ -482,7 +490,7 @@ func (r *Runner) copyImage(ctx context.Context, in chan copyJob) chan Event {
 					if targetTagDetail.Equals(x.src) {
 						log.Info("Image tag up to date, skipping copy operation")
 						// TODO: New status for 'up-to-date'
-						emit(evt, NewStatusEvent(x.src.String(), ObjectTypeTag, StatusTypeCopied, true))
+						// emit(evt, NewStatusEvent(x.src.String(), ObjectTypeTag, StatusTypeCopied, true))
 						tagsCnFnc()
 						continue
 					}
@@ -620,8 +628,32 @@ func (r *Runner) updateStatus(ctx context.Context, log logr.Logger, evt Event) e
 			"StatusType", data.StatusType,
 			"Success", data.Success,
 		)
-	default:
-		log.Info("Unknown event type", "event", evt)
+	}
+	return nil
+}
+
+func (r *Runner) updateSummary(ctx context.Context, log logr.Logger, evt Event) error {
+	switch evt.Type {
+	case EventTypeStatusChange:
+		data := evt.Data.(StatusEventData)
+		src := evt.Source.(string)
+		// Ignore failed events and everything but tags
+		if data.ObjType != ObjectTypeTag ||
+			!data.Success {
+			return nil
+		}
+		switch data.StatusType {
+		case StatusTypeCopied:
+			r.summary.NewTags = append(r.summary.NewTags, TagInfo(src))
+		case StatusTypeDeleted:
+			r.summary.DeletedTags = append(r.summary.DeletedTags, TagInfo(src))
+		}
+		log.V(2).Info("Summary Updated",
+			"Source", evt.Source.(string),
+			"ObjectType", data.ObjType,
+			"StatusType", data.StatusType,
+			"Success", data.Success,
+		)
 	}
 	return nil
 }

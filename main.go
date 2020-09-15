@@ -141,7 +141,8 @@ func runSingleJob(configPath string, maxParallelCopy uint, maxMem uint64) {
 	cim.ConfigMaxMemBytes = maxMem
 
 	timerStart := time.Now()
-	if err := cim.Run(cfg, ctx, log); err != nil {
+	cimr := cim.NewRunner(cfg, log)
+	if err := cimr.Run(ctx); err != nil {
 		log.Error(err, "mirror job failed",
 			"config", configPath)
 		os.Exit(1)
@@ -150,6 +151,7 @@ func runSingleJob(configPath string, maxParallelCopy uint, maxMem uint64) {
 	executionTime := timerEnd.Sub(timerStart)
 	log.Info(fmt.Sprintf("Successfully finished. Execution time: %s", executionTime),
 		"ExecutionTime", executionTime)
+	log.Info(cimr.Summary().String())
 	os.Exit(0)
 }
 

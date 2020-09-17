@@ -9,6 +9,7 @@ spec:
   - docker.io/jaegertracing
   - docker.io/omnition
   - docker.io/openzipkin
+  - docker.io/danielsel
   destinations:
   - gcr.io/sel-red-alpha/mirror
   tagPolicy:

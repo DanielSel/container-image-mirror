@@ -539,6 +539,7 @@ func (r *Runner) copyImage(ctx context.Context, in chan copyJob) chan Event {
 					continue
 				}
 			}
+			log.Info("Successfully copied image tag")
 		}
 		close(evt)
 	}()

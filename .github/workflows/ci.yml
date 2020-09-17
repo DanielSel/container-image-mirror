@@ -15,13 +15,17 @@ jobs:
       - name: "Checkout git repository"
         uses: actions/checkout@v2
 
-      - name: "Go build (using docker)"
-        uses: whoan/docker-build-with-cache-action@v5
-        with:
-          username: danielsel
-          password: "${{ secrets.PAT }}"
-          registry: ghcr.io
-          image_name: cim
+      - name: "Go build (using docker"
+        run: docker build -t ghcr.io/danielsel/cim:latest --cache-from ghcr.io/danielsel/cim:latest --build-arg BUILDKIT_INLINE_CACHE=1 . 
         env:
           NODE_OPTIONS: "--max_old_space_size=7168"
           DOCKER_BUILDKIT: 1
+
+      - name: "Push to GitHub Container Registry (GHCR)"
+        if: github.event_name == 'push'
+        run: |
+          echo $PAT | docker login ghcr.io --username danielsel --password-stdin
+          docker push ghcr.io/danielsel/cim:latest
+          rm ~/.docker/config.json
+        env:
+          PAT: ${{ secrets.PAT }}

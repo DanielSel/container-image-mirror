@@ -3,10 +3,10 @@ name: mirror-images
 on:
   push:
     branches: [ master ]
-    paths: [".github/workflows/mirror-images.yml"]
+    paths: [".github/workflows/mirror-images.yml", ".github/resources/mirror-config.yml"]
   pull_request:
     branches: [ master ]
-    paths: [".github/workflows/mirror-images.yml"]
+    paths: [".github/workflows/mirror-images.yml", ".github/resources/mirror-config.yml"]
   workflow_run:
     workflows: ["ci"]
     branches: [master]
